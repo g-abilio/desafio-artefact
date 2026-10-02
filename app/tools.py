@@ -5,7 +5,7 @@ from langchain.tools import tool
 
 from app.data_store import (
     get_categories,
-    get_costumers,
+    get_customers,
     get_order_items,
     get_orders,
     get_products,
@@ -280,3 +280,61 @@ def get_order_status(order_id: int, customer_email: str) -> str:
     """
     Consulta o status de um pedido pelo ID e e-mail do cliente.
     """
+
+    order = next(
+        (order for order in get_orders() if order["order_id"] == str(order_id)),
+        None
+    )
+
+    error_response = {
+        "found": False,
+        "message": "Pedido não encontrado para o número e e-mail informados.",
+    }
+
+    if order is None:
+        return json_response(error_response)
+
+    customer = next(
+        (customer for customer in get_customers() if customer["customer_id"] == order["customer_id"]),
+        None
+    )
+    if customer is None:
+        return json_response(error_response)
+
+    if customer["email"].strip().lower() != customer_email.strip().lower():
+        return json_response(error_response)
+
+    products_by_id = {
+        product["product_id"]: product["name"] for product in get_products()
+    }
+
+    items = []
+    for item in get_order_items():
+        if item["order_id"] == str(order_id):
+            items.append(
+                {
+                    "product_id": int(item["product_id"]),
+                    "product_name": products_by_id.get(
+                        item["product_id"],
+                        "Produto não encontrado"
+                    ),
+                    "quantity": int(item["quantity"]),
+                }
+            )
+
+    return json_response(
+        {
+            "found": True,
+            "order": {
+                "order_id": int(order["order_id"]),
+                "order_date": order["order_date"],
+                "status": order["status"],
+                "total_brl": float(order["total_brl"]),
+                "payment_method": order["payment_method"],
+                "tracking_code": order["tracking_code"] or None,
+                "estimated_delivery": order["estimated_delivery"] or None,
+                "notes": order["notes"] or None,
+                "items": items,
+            },
+        }
+    )

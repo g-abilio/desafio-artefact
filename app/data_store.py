@@ -25,12 +25,11 @@ def get_products():
 def get_promotions(): 
     return load_csv_data("promotions.csv") 
 
-def get_costumers(): 
-    return load_csv_data("costumers.csv") 
+def get_customers(): 
+    return load_csv_data("customers.csv") 
 
 def get_orders(): 
     return load_csv_data("orders.csv") 
 
 def get_order_items(): 
     return load_csv_data("order_items.csv") 
-
