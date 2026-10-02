@@ -11,5 +11,6 @@ class Config:
     ollama_chat_model: str = os.getenv("OLLAMA_CHAT_MODEL", "llama3.1:8b")
     ollama_embedding_model: str = os.getenv("OLLAMA_EMBEDDING_MODEL", "embeddinggemma")
     data_dir: Path = Path(os.getenv("DATA_DIR", "data"))
+    policies_path: Path = Path(os.getenv("POLICIES_PATH", "data/politicas_da_loja.pdf"))
 
 config = Config()
