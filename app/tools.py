@@ -126,8 +126,8 @@ def product_to_response(product: dict[str, str], categories_by_id: dict[str, str
         "availability": availability,
         "stock_quantity": stock_quantity,
         "price": {
-            "base_brl": f"{base_price:.2f}",
-            "current_brl": f"{current_price:.2f}",
+            "base_brl": base_price,
+            "current_brl": current_price,
         },
         "promotion": promotion_data,
         "specs": parse_specs(product["specs"]),
