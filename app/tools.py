@@ -58,13 +58,13 @@ def calculate_product_prices(product: dict[str, str]) -> tuple[float, float, dic
     Calcula o preço atual de um produto considerando uma possível promoção ativa
     """
 
-    base_price = product["price_brl"]
+    base_price = float(product["price_brl"])
     promotion = find_active_promotion(product["product_id"])
 
     if promotion is None: 
         return base_price, base_price, None
 
-    discount_percent = float(promotion["discount_percet"])
+    discount_percent = float(promotion["discount_percent"])
     current_price = base_price * (1 - discount_percent/100)
 
     return base_price, current_price, promotion
