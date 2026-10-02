@@ -38,7 +38,8 @@ Regras:
 def build_agent():
     model = ChatOllama(
         model = config.ollama_chat_model,
-        base_url = config.ollama_base_url
+        base_url = config.ollama_base_url, 
+        temperature = 0
     )
 
     tools = [
