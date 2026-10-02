@@ -2,7 +2,7 @@ import json
 import unicodedata
 from typing import Any
 from langchain.tools import tool 
-
+from app.rag import retrieve_store_policies
 from app.data_store import (
     get_categories,
     get_customers,
@@ -338,3 +338,11 @@ def get_order_status(order_id: int, customer_email: str) -> str:
             },
         }
     )
+
+@tool
+def consult_store_policies(question: str) -> str:
+    """
+    Consulta as políticas oficiais da loja.
+    """
+
+    return retrieve_store_policies(question)
