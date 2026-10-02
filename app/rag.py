@@ -21,7 +21,7 @@ def get_policy_retriever():
 
     pages = []
     for page_number, page in enumerate(reader.pages, start=1):
-        text = page.extract_text() or ""
+        text = " ".join((page.extract_text() or "").split())
 
         if text.strip():
             pages.append(
