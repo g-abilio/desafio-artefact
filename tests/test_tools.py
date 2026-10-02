@@ -75,3 +75,15 @@ def test_rejects_wrong_email():
     result = json.loads(response)
 
     assert result["found"] is False
+
+def test_product_not_found():
+    response = get_product_details.invoke(
+        {
+            "product_name": "Produto xyz",
+        }
+    )
+
+    result = json.loads(response)
+
+    assert result["found"] is False
+    assert result["message"] == ("Produto não encontrado no catálogo.")
