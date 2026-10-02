@@ -170,14 +170,34 @@ Se tiver alguma dúvida ou precisar de mais informações, por favor não hesite
 
 ```
 
-### 3. Consulta de pedido
-
+### 3. Consulta de endereço da loja
 ```text
-Usuário: Qual é o status do pedido 1? Meu e-mail é pedro.oliveira@jmail.com.
-Assistente: O status do seu pedido 1 é "delivered". O seu pedido foi entregue no dia 25/10/2025. O valor total do pedido foi de R$ 11.499,00, pago pelo método Pix. O código de rastreamento da entrega é BRAB1234567BR.
+Usuário: Qual o endereço da loja?
+Assistente: O endereço da loja é Rua 14 de Maio, 3200 — Centro, Campo Grande - MS, 79202-333.
 ```
 
-### 4. Pergunta fora do escopo
+### 4. Consulta de produtos até certo preço
+```text
+Usuário: Quais opções de violões disponíveis custando até R$1000?
+Assistente: Estamos com uma variedade de violões disponíveis para você! Aqui estão algumas opções que atendem ao seu orçamento de R$1000:
+ 
+1. Tagima Memphis AC-39 Nylon Natural - R$429,90
+2. Rozini RC-104 Nylon Estudante - R$459,90
+3. Shelby SN-100 Folk Aço Preto - R$549,00
+4. Giannini GF-1R Aço Folk Sunburst - R$579,90
+5. Yamaha C40 Nylon Natural - R$599,90
+6. Giannini GN-15 Nylon Cedr Natural - R$689,00
+7. Yamaha F310 Aço Natural - R$699,90
+8. Tagima Dallas Tuner Aço Natural - R$749,00
+9. Shelby SGD-195E Elétrico Aço Sunburst - R$799,00
+10. Yamaha C70 Nylon Natural - R$849,00
+11. Tagima Woodstock Dreadnought Natural - R$899,00
+12. Tagima TW-7 7 Cordas Aço Natural - R$999,00
+ 
+Essas são apenas algumas das opções disponíveis. Se você tiver alguma dúvida ou precisar de mais informações, não hesite em perguntar!
+```
+
+### 5. Pergunta fora do escopo
 
 ```text
 Usuário: Qual é a previsão do tempo para amanhã?
