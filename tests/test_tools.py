@@ -8,6 +8,10 @@ from app.tools import (
 )
 
 def test_search_yamaha_products():
+    """
+    Verifica a busca de produtos Yamaha dentro do limite de preço.
+    """
+
     response = search_products.invoke(
         {
             "query": "Yamaha",
@@ -22,6 +26,10 @@ def test_search_yamaha_products():
     assert result["count"] == 3
 
 def test_get_product_details():
+    """
+    Verifica os detalhes retornados para um produto conhecido.
+    """
+
     response = get_product_details.invoke(
         {
             "product_name": "Takamine GD20",
@@ -37,6 +45,10 @@ def test_get_product_details():
     assert product["stock_quantity"] == 5
 
 def test_active_promotion():
+    """
+    Verifica a aplicação de uma promoção ativa ao preço do produto.
+    """
+
     response = get_product_details.invoke(
         {
             "product_name": "Taylor 110e",
@@ -51,6 +63,10 @@ def test_active_promotion():
     assert product["promotion"]["discount_percent"] == 8.0
 
 def test_get_order_status():
+    """
+    Verifica a consulta de pedido com número e e-mail válidos.
+    """
+
     response = get_order_status.invoke(
         {
             "order_id": 1,
@@ -65,6 +81,10 @@ def test_get_order_status():
     assert result["order"]["total_brl"] == 11499.0
 
 def test_rejects_wrong_email():
+    """
+    Verifica que um e-mail incorreto não permite consultar o pedido.
+    """
+
     response = get_order_status.invoke(
         {
             "order_id": 1,
@@ -77,6 +97,10 @@ def test_rejects_wrong_email():
     assert result["found"] is False
 
 def test_product_not_found():
+    """
+    Verifica a resposta para um produto inexistente no catálogo.
+    """
+
     response = get_product_details.invoke(
         {
             "product_name": "Produto xyz",

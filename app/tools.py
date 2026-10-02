@@ -14,8 +14,13 @@ from app.data_store import (
 
 def normalize_text(text: str) -> str:
     """
-    Normaliza o texto removendo acentos e convertendo para minúsculas.
-    Facilita as buscas e comparações de strings. 
+    Normaliza texto para buscas sem diferença entre acentos e maiúsculas.
+
+    Args:
+        text: Texto original a ser normalizado.
+
+    Returns:
+        Texto em minúsculas e sem caracteres de acentuação.
     """
 
     text = unicodedata.normalize("NFKD", text)
@@ -23,15 +28,24 @@ def normalize_text(text: str) -> str:
     return text.lower()
 
 def json_response(data) -> str: 
-    """"
-    Converte os resultados das tools em um JSON formatado.
+    """
+    Serializa o resultado de uma tool em JSON para que o agente possa ler.
+
+    Args:
+        data: Estrutura serializável em JSON.
+
+    Returns:
+        String JSON indentada, preservando caracteres Unicode.
     """
 
     return json.dumps(data, ensure_ascii = False, indent = 2)
 
 def get_categories_by_id() -> dict[str, str]: 
     """
-    Associa o nome da categoria ao seu id.
+    Cria um dicionário com índice que associa cada ID ao nome de sua categoria.
+
+    Returns:
+        Dicionário no formato ``{category_id: category_name}``.
     """
 
     category_dict = {}
@@ -43,8 +57,15 @@ def get_categories_by_id() -> dict[str, str]:
     return category_dict
 
 def find_active_promotion(product_id: str) -> dict[str, str] | None: 
-    """"
-    Procura uma promoção ativa para o produto em foco.
+    """
+    Procura a promoção ativa associada a um produto.
+
+    Args:
+        product_id: Identificador do produto no catálogo.
+
+    Returns:
+        Dados da primeira promoção ativa encontrada ou ``None`` quando o produto
+        não possuir promoção ativa.
     """
 
     for promotion in get_promotions(): 
@@ -55,7 +76,14 @@ def find_active_promotion(product_id: str) -> dict[str, str] | None:
 
 def calculate_product_prices(product: dict[str, str]) -> tuple[float, float, dict[str, str] | None]: 
     """
-    Calcula o preço atual de um produto considerando uma possível promoção ativa
+    Calcula o preço atual de um produto considerando uma possível promoção ativa.
+
+    Args:
+        product: Linha do produto carregada de ``products.csv``.
+
+    Returns:
+        Tupla contendo preço base, preço atual e dados da promoção. Quando não há
+        promoção ativa, os dois preços são iguais e o terceiro item é ``None``.
     """
 
     base_price = float(product["price_brl"])
@@ -71,7 +99,14 @@ def calculate_product_prices(product: dict[str, str]) -> tuple[float, float, dic
 
 def parse_specs(raw_specs: str) -> dict[str, Any]: 
     """
-    Converte a coluna specs, que tem um JSON.
+    Converte o conteúdo JSON da coluna ``specs`` em um dicionário.
+
+    Args:
+        raw_specs: Texto JSON armazenado no CSV de produtos.
+
+    Returns:
+        Especificações convertidas, um dicionário vazio para entrada vazia ou um
+        dicionário com ``raw_value`` quando o texto não for um JSON válido.
     """
 
     if not raw_specs: 
@@ -86,12 +121,19 @@ def parse_specs(raw_specs: str) -> dict[str, Any]:
 
 def product_to_response(product: dict[str, str], categories_by_id: dict[str, str]) -> dict[str, Any]:
     """
-    Transforma uma linha de produto em um formato adequado para ser entregue ao agente.
+    Converte uma linha de produto em uma resposta estruturada para o agente.
+    A resposta reúne categoria, disponibilidade, estoque, preços, promoção e
+    especificações, convertendo os campos numéricos recebidos como texto no CSV.
+
+    Args:
+        product: Linha do produto carregada de ``products.csv``.
+        categories_by_id: Dicionário com índice que associa IDs aos nomes das categorias.
+
+    Returns:
+        Dicionário com os dados consolidados do produto.
     """
 
     price_tuple = (calculate_product_prices(product))
-
-    # base_price, current_price, promotion
 
     stock_quantity = int(product["stock_quantity"])
     status = product["status"]
@@ -136,7 +178,20 @@ def product_to_response(product: dict[str, str], categories_by_id: dict[str, str
 @tool 
 def search_products(query: str, max_price_brl: float, only_in_stock: bool) -> str:
     """
-    Busca produtos pelo nome, descrição ou categoria, filtrando por preço máximo e disponibilidade em estoque.
+    Busca opções de produtos no catálogo usando filtros estruturados.
+    Use esta tool quando o cliente solicitar recomendações, produtos de uma marca
+    ou categoria, opções dentro de um orçamento ou itens disponíveis em estoque.
+    Todos os termos de ``query`` devem aparecer no nome, descrição, categoria ou
+    especificações. Produtos não ativos são sempre ignorados.
+
+    Args:
+        query: Nome, marca, categoria ou característica procurada.
+        max_price_brl: Preço atual máximo em reais.
+        only_in_stock: Se verdadeiro, exclui produtos com estoque igual a zero.
+
+    Returns:
+        String JSON com a quantidade e a lista ordenada dos produtos encontrados,
+        ou uma mensagem indicando que nenhum item corresponde aos filtros.
     """
 
     normalized_query = normalize_text(query)
@@ -209,7 +264,18 @@ def search_products(query: str, max_price_brl: float, only_in_stock: bool) -> st
 @tool 
 def get_product_details(product_name: str) -> str:
     """
-    Consulta preço, estoque, situação e promoção de um produto.
+    Consulta os dados detalhados de um produto específico.
+    Use esta tool quando o cliente mencionar um modelo e perguntar por preço,
+    estoque, disponibilidade, promoção, descrição ou especificações. A busca
+    aceita o nome completo ou parte dele e informa possíveis opções quando o
+    termo corresponder a mais de um produto.
+
+    Args:
+        product_name: Nome completo ou trecho do nome do produto.
+
+    Returns:
+        String JSON com o produto encontrado, sugestões em caso de ambiguidade ou
+        uma mensagem indicando que o produto não existe no catálogo.
     """
 
     normalized_query = normalize_text(product_name)
@@ -278,7 +344,18 @@ def get_product_details(product_name: str) -> str:
 @tool 
 def get_order_status(order_id: int, customer_email: str) -> str:
     """
-    Consulta o status de um pedido pelo ID e e-mail do cliente.
+    Consulta um pedido após validar seu número e o e-mail do cliente.
+    Use esta tool somente quando o cliente fornecer as duas informações. A mesma
+    resposta de erro é usada para pedido inexistente e e-mail incorreto, evitando
+    confirmar a existência de dados para uma pessoa não validada.
+
+    Args:
+        order_id: Número identificador do pedido.
+        customer_email: E-mail associado ao cliente que realizou a compra.
+
+    Returns:
+        String JSON com status, valor histórico, pagamento, rastreamento, previsão
+        de entrega, observações e itens; ou uma mensagem genérica de não encontrado.
     """
 
     order = next(
@@ -342,7 +419,16 @@ def get_order_status(order_id: int, customer_email: str) -> str:
 @tool
 def consult_store_policies(question: str) -> str:
     """
-    Consulta as políticas oficiais da loja.
+    Consulta informações gerais e políticas oficiais da loja por RAG.
+    Use esta tool para perguntas sobre endereço, horários, pagamentos, promoções,
+    trocas, devoluções, garantias, frete, entregas e procedimentos de atendimento.
+
+    Args:
+        question: Pergunta do cliente a ser pesquisada no manual de políticas.
+
+    Returns:
+        Trechos do manual semanticamente relacionados à pergunta, acompanhados do
+        número da página de origem.
     """
 
     return retrieve_store_policies(question)

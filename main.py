@@ -2,13 +2,25 @@ from app.agent import build_agent
 
 def ask_agent(agent, user_input: str, thread_id: str = "terminal-session") -> str:
     """
-    Envia uma mensagem mantendo o histórico da conversa da sessão.
+    Envia uma mensagem ao agente e retorna sua resposta final. 
+    O ``thread_id`` identifica a conversa no checkpointer em memória, possibilitando
+    que o agente considere as mensagens anteriores da sessão, ou seja, 
+    possibilitando um histórico de conversa da sessão. 
+
+    Args:
+        agent: Agente LangChain criado por ``build_agent``.
+        user_input: Mensagem digitada pelo usuário.
+        thread_id: Identificador da conversa atual.
+
+    Returns:
+        Conteúdo da última mensagem produzida pelo agente.
     """
 
     result = agent.invoke(
         {"messages": [{"role": "user", "content": user_input}]},
         config={"configurable": {"thread_id": thread_id}},
     )
+
     return result["messages"][-1].content
 
 

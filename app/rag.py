@@ -9,7 +9,17 @@ from app.config import config
 @lru_cache(maxsize=1)
 def get_policy_retriever():
     """
-    Lê o PDF e cria o índice vetorial uma única vez durante a execução da aplicação, guardando-o em cache.
+    Cria e armazena em cache o retriever das políticas da loja.
+    O PDF é lido página a página, seu texto é normalizado e dividido em chunks.
+    Em seguida, os embeddings são gerados pelo Ollama e armazenados em um vector
+    store em memória. O cache evita reconstruir o índice durante a mesma execução.
+
+    Returns:
+        Retriever configurado para devolver os quatro chunks mais semelhantes à
+        pergunta recebida.
+
+    Raises:
+        FileNotFoundError: Se o PDF configurado em ``policies_path`` não existir.
     """
 
     if not config.policies_path.exists():
@@ -55,7 +65,15 @@ def get_policy_retriever():
 
 def retrieve_store_policies(question: str) -> str:
     """
-    Recupera os trechos da política da loja mais relacionados à pergunta em foco.
+    Recupera trechos do manual relacionados a uma pergunta sobre a loja.
+
+    Args:
+        question: Pergunta usada na busca semântica sobre as políticas.
+
+    Returns:
+        Texto com os trechos recuperados e o número de suas páginas, separados
+        por linhas em branco. Retorna uma mensagem informativa quando não houver
+        documentos relacionados.
     """
 
     retriever = get_policy_retriever()

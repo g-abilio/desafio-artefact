@@ -36,6 +36,16 @@ Regras:
 """
 
 def build_agent():
+    """
+    Cria o agente de atendimento com modelo, tools e memória da sessão.
+    O agente utiliza o modelo de chat configurado no Ollama, o prompt de sistema
+    da loja, as quatro tools de consulta e um checkpointer em memória para manter
+    o contexto entre mensagens da mesma conversa.
+
+    Returns:
+        Agente LangChain pronto para receber mensagens por ``invoke``.
+    """
+
     model = ChatOllama(
         model = config.ollama_chat_model,
         base_url = config.ollama_base_url, 
