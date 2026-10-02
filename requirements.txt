@@ -24,6 +24,7 @@ langgraph-checkpoint==4.2.0
 langgraph-prebuilt==1.1.0
 langgraph-sdk==0.4.5
 langsmith==0.14.3
+numpy==2.5.3
 ollama==0.6.3
 openai==3.23.0
 orjson==3.12.0
