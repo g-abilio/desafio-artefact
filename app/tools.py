@@ -133,7 +133,6 @@ def product_to_response(product: dict[str, str], categories_by_id: dict[str, str
         "specs": parse_specs(product["specs"]),
     }
 
-
 @tool 
 def search_products(query: str, max_price_brl: float, only_in_stock: bool) -> str:
     """
@@ -206,13 +205,75 @@ def search_products(query: str, max_price_brl: float, only_in_stock: bool) -> st
             "products": results,
         }
     )
- 
 
 @tool 
 def get_product_details(product_name: str) -> str:
     """
     Consulta preço, estoque, situação e promoção de um produto.
     """
+
+    normalized_query = normalize_text(product_name)
+
+    if not normalized_query: 
+        return json_response(
+            {
+                "found": False,
+                "message": "Informe o nome do produto.",
+            }
+        )
+
+    products = list(get_products()) 
+
+    exact_matches = [] 
+    for product in products: 
+        if normalize_text(product["name"]) == normalized_query: 
+            exact_matches.append(product)
+
+    partial_matches = [] 
+    for product in products:
+        if normalized_query in normalize_text(product["name"]): 
+            partial_matches.append(product)
+
+    if exact_matches:
+        selected_product = exact_matches[0]
+    elif len(partial_matches) == 1:
+        selected_product = partial_matches[0]
+    elif len(partial_matches) > 1:
+        suggestions = [] 
+        for product in partial_matches: 
+            suggestions.append(product["name"])
+
+        return json_response(
+            {
+                "found": False,
+                "ambiguous": True,
+                "message": (
+                    "Mais de um produto corresponde ao nome informado. Peça ao cliente para escolher um modelo mais específico."
+                ),
+                "suggestions": suggestions,
+            }
+        )
+    else:
+
+        return json_response(
+            {
+                "found": False,
+                "message": (
+                    "Produto não encontrado no catálogo."
+                ),
+            }
+        )
+
+    categories_by_id = get_categories_by_id()
+    return json_response(
+        {
+            "found": True,
+            "product": product_to_response(
+                selected_product,
+                categories_by_id
+            ),
+        }
+    )
 
 @tool 
 def get_order_status(order_id: int, customer_email: str) -> str:
